@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemma-3 Architecture Explorer</title>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .layer-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .layer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .local-attention {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .global-attention {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .feedforward {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .embedding {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .tooltip {
+            position: absolute;
+            text-align: left;
+            padding: 10px;
+            font: 12px sans-serif;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .flow-diagram {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .info-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
+        <div class="container mx-auto">
+            <h1 class="text-4xl font-bold mb-2">🔬 Gemma-3 Architecture Explorer</h1>
+            <p class="text-lg opacity-90">Interactive visualization of model layers and components</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-6">
+        <!-- Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="info-box rounded-lg p-4">
+                <h3 class="text-sm opacity-70 mb-1">Total Parameters</h3>
+                <p class="text-2xl font-bold" id="total-params">Loading...</p>
+            </div>
+            <div class="info-box rounded-lg p-4">
+                <h3 class="text-sm opacity-70 mb-1">Model Layers</h3>
+                <p class="text-2xl font-bold" id="num-layers">Loading...</p>
+            </div>
+            <div class="info-box rounded-lg p-4">
+                <h3 class="text-sm opacity-70 mb-1">Attention Heads</h3>
+                <p class="text-2xl font-bold" id="attention-heads">Loading...</p>
+            </div>
+            <div class="info-box rounded-lg p-4">
+                <h3 class="text-sm opacity-70 mb-1">Hidden Size</h3>
+                <p class="text-2xl font-bold" id="hidden-size">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Architecture Flow Diagram -->
+        <div class="flow-diagram mb-8">
+            <h2 class="text-2xl font-bold mb-4">📊 Model Architecture Flow</h2>
+            <div id="architecture-flow" style="height: 400px;"></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="mb-4">
+            <div class="flex space-x-4 border-b border-gray-700">
+                <button class="tab-btn px-4 py-2 font-semibold border-b-2 border-purple-500" data-tab="layers">
+                    Layer Details
+                </button>
+                <button class="tab-btn px-4 py-2 font-semibold opacity-70 hover:opacity-100" data-tab="attention">
+                    Attention Pattern
+                </button>
+                <button class="tab-btn px-4 py-2 font-semibold opacity-70 hover:opacity-100" data-tab="memory">
+                    Memory Analysis
+                </button>
+                <button class="tab-btn px-4 py-2 font-semibold opacity-70 hover:opacity-100" data-tab="concepts">
+                    Key Concepts
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content">
+            <!-- Layers Tab -->
+            <div id="layers-tab" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Layer List -->
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">🔍 Layer Browser</h3>
+                        <div class="space-y-2 max-h-96 overflow-y-auto" id="layer-list">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                    
+                    <!-- Layer Details -->
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">📝 Layer Details</h3>
+                        <div class="info-box rounded-lg p-6" id="layer-details">
+                            <p class="opacity-70">Select a layer to view details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attention Tab -->
+            <div id="attention-tab" class="tab-content hidden">
+                <h3 class="text-xl font-bold mb-4">🎯 Attention Pattern Analysis</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="info-box rounded-lg p-6">
+                        <h4 class="font-bold mb-3">Local vs Global Attention</h4>
+                        <div id="attention-pattern"></div>
+                        <p class="mt-4 text-sm opacity-70">
+                            Gemma-3 uses a 5:1 ratio of local to global attention layers.
+                            Local layers use a sliding window of 1024 tokens, while global
+                            layers attend to the full sequence.
+                        </p>
+                    </div>
+                    <div class="info-box rounded-lg p-6">
+                        <h4 class="font-bold mb-3">KV-Cache Optimization</h4>
+                        <div id="kv-cache-chart"></div>
+                        <p class="mt-4 text-sm opacity-70">
+                            The mixed local-global pattern reduces KV-cache memory from
+                            60% to less than 15% of total memory usage.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory Tab -->
+            <div id="memory-tab" class="tab-content hidden">
+                <h3 class="text-xl font-bold mb-4">💾 Memory Requirements</h3>
+                <div id="memory-charts" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div id="model-size-chart"></div>
+                    <div id="context-memory-chart"></div>
+                </div>
+            </div>
+
+            <!-- Concepts Tab -->
+            <div id="concepts-tab" class="tab-content hidden">
+                <h3 class="text-xl font-bold mb-4">📚 Key Concepts Explained</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="info-box rounded-lg p-6">
+                        <h4 class="font-bold text-purple-400 mb-2">🔄 Attention Mechanism</h4>
+                        <p class="text-sm mb-3">
+                            Attention allows the model to focus on relevant parts of the input.
+                            It works by computing Query (Q), Key (K), and Value (V) projections,
+                            then using Q and K to determine attention weights for V.
+                        </p>
+                        <code class="text-xs bg-gray-800 p-2 rounded block">
+                            Attention(Q,K,V) = softmax(QK^T/√d_k)V
+                        </code>
+                    </div>
+                    
+                    <div class="info-box rounded-lg p-6">
+                        <h4 class="font-bold text-pink-400 mb-2">🪟 Sliding Window Attention</h4>
+                        <p class="text-sm">
+                            Local attention layers only attend to the nearest 1024 tokens,
+                            reducing computational complexity from O(n²) to O(n×w) where w=1024.
+                            This enables processing of very long sequences efficiently.
+                        </p>
+                    </div>
+                    
+                    <div class="info-box rounded-lg p-6">
+                        <h4 class="font-bold text-blue-400 mb-2">🧠 Feed-Forward Networks</h4>
+                        <p class="text-sm">
+                            Each attention block is followed by a feed-forward network (MLP)
+                            that processes each position independently. It typically expands
+                            the dimension by 4x using the SwiGLU activation function.
+                        </p>
+                    </div>
+                    
+                    <div class="info-box rounded-lg p-6">
+                        <h4 class="font-bold text-green-400 mb-2">🎭 RoPE Embeddings</h4>
+                        <p class="text-sm">
+                            Rotary Position Embeddings encode position information by rotating
+                            query and key vectors. Gemma-3 uses different RoPE frequencies:
+                            10K for local layers and 1M for global layers.
+                        </p>
+                    </div>
+                    
+                    <div class="info-box rounded-lg p-6">
+                        <h4 class="font-bold text-yellow-400 mb-2">⚡ Grouped Query Attention</h4>
+                        <p class="text-sm">
+                            GQA reduces memory usage by sharing key-value heads across multiple
+                            query heads. This significantly reduces KV-cache size while maintaining
+                            model quality.
+                        </p>
+                    </div>
+                    
+                    <div class="info-box rounded-lg p-6">
+                        <h4 class="font-bold text-indigo-400 mb-2">📊 Layer Normalization</h4>
+                        <p class="text-sm">
+                            RMSNorm is applied before each sub-layer to stabilize training.
+                            It normalizes inputs to have unit variance, helping with gradient
+                            flow through deep networks.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Sample architecture data (will be replaced with actual data)
+        const architectureData = {
+            total_params: 4000000000,
+            num_hidden_layers: 42,
+            num_attention_heads: 16,
+            hidden_size: 3072,
+            intermediate_size: 12288,
+            vocab_size: 256000,
+            max_position_embeddings: 131072,
+            attention_info: {
+                local_layers: Array.from({length: 35}, (_, i) => i).filter(i => (i+1) % 6 !== 0),
+                global_layers: Array.from({length: 7}, (_, i) => (i+1) * 6 - 1),
+                local_to_global_ratio: 5
+            },
+            memory_info: {
+                model_size_gb: 8.0,
+                fp32_size_gb: 16.0,
+                int8_size_gb: 4.0,
+                int4_size_gb: 2.0,
+                kv_cache_1024_gb: 0.5,
+                kv_cache_4096_gb: 2.0,
+                kv_cache_16384_gb: 8.0,
+                kv_cache_131072_gb: 64.0,
+                kv_cache_131072_optimized_gb: 12.0
+            }
+        };
+
+        // Initialize the visualization
+        function initVisualization() {
+            // Update overview cards
+            document.getElementById('total-params').textContent = 
+                (architectureData.total_params / 1e9).toFixed(1) + 'B';
+            document.getElementById('num-layers').textContent = 
+                architectureData.num_hidden_layers;
+            document.getElementById('attention-heads').textContent = 
+                architectureData.num_attention_heads;
+            document.getElementById('hidden-size').textContent = 
+                architectureData.hidden_size;
+
+            // Create architecture flow
+            createArchitectureFlow();
+            
+            // Create layer list
+            createLayerList();
+            
+            // Create attention pattern
+            createAttentionPattern();
+            
+            // Create memory charts
+            createMemoryCharts();
+            
+            // Setup tab switching
+            setupTabs();
+        }
+
+        function createArchitectureFlow() {
+            const layers = [];
+            const layerHeight = 8;
+            const totalHeight = 400;
+            
+            // Create layer data
+            for (let i = 0; i < architectureData.num_hidden_layers; i++) {
+                const isGlobal = (i + 1) % 6 === 0;
+                layers.push({
+                    index: i,
+                    type: isGlobal ? 'global' : 'local',
+                    y: (i / architectureData.num_hidden_layers) * (totalHeight - 50) + 25
+                });
+            }
+
+            // Create visualization using Plotly
+            const trace = {
+                x: layers.map(l => l.index),
+                y: layers.map(l => 1),
+                mode: 'markers',
+                marker: {
+                    size: 12,
+                    color: layers.map(l => l.type === 'global' ? '#f5576c' : '#764ba2'),
+                    symbol: layers.map(l => l.type === 'global' ? 'diamond' : 'circle')
+                },
+                text: layers.map(l => `Layer ${l.index}<br>Type: ${l.type}`),
+                hovertemplate: '%{text}<extra></extra>',
+                type: 'scatter'
+            };
+
+            const layout = {
+                title: 'Layer Structure (Local vs Global Attention)',
+                xaxis: { title: 'Layer Index', gridcolor: 'rgba(255,255,255,0.1)' },
+                yaxis: { 
+                    title: '', 
+                    showticklabels: false,
+                    range: [0.5, 1.5]
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: 'white' },
+                showlegend: false,
+                hovermode: 'closest'
+            };
+
+            Plotly.newPlot('architecture-flow', [trace], layout, {responsive: true});
+        }
+
+        function createLayerList() {
+            const layerList = document.getElementById('layer-list');
+            const layerTypes = [
+                { name: 'Embedding Layer', type: 'embedding', params: '768M' },
+                { name: 'Input LayerNorm', type: 'norm', params: '3K' }
+            ];
+            
+            // Add transformer blocks
+            for (let i = 0; i < architectureData.num_hidden_layers; i++) {
+                const isGlobal = (i + 1) % 6 === 0;
+                layerTypes.push({
+                    name: `Block ${i}`,
+                    type: isGlobal ? 'global-attention' : 'local-attention',
+                    params: '95M',
+                    components: ['Attention', 'MLP', 'LayerNorm']
+                });
+            }
+            
+            layerTypes.push(
+                { name: 'Output LayerNorm', type: 'norm', params: '3K' },
+                { name: 'LM Head', type: 'output', params: '768M' }
+            );
+
+            layerList.innerHTML = layerTypes.map((layer, idx) => `
+                <div class="layer-card p-3 rounded-lg ${getLayerClass(layer.type)} opacity-90" 
+                     onclick="showLayerDetails(${idx}, '${layer.name}', '${layer.type}')">
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">${layer.name}</span>
+                        <span class="text-xs opacity-70">${layer.params}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getLayerClass(type) {
+            const classes = {
+                'local-attention': 'local-attention',
+                'global-attention': 'global-attention',
+                'embedding': 'embedding',
+                'output': 'embedding',
+                'norm': 'feedforward',
+                'feedforward': 'feedforward'
+            };
+            return classes[type] || 'feedforward';
+        }
+
+        function showLayerDetails(idx, name, type) {
+            const details = document.getElementById('layer-details');
+            const explanations = {
+                'embedding': 'Converts input tokens into dense vector representations',
+                'local-attention': 'Attention with sliding window of 1024 tokens for efficiency',
+                'global-attention': 'Full sequence attention for capturing long-range dependencies',
+                'norm': 'Normalizes activations to stabilize training',
+                'output': 'Projects hidden states to vocabulary for next token prediction'
+            };
+            
+            details.innerHTML = `
+                <h4 class="text-lg font-bold mb-3">${name}</h4>
+                <div class="space-y-2">
+                    <p><strong>Type:</strong> ${type}</p>
+                    <p><strong>Description:</strong> ${explanations[type] || 'Processing layer'}</p>
+                    ${type.includes('attention') ? `
+                        <div class="mt-4">
+                            <p class="font-semibold mb-2">Components:</p>
+                            <ul class="list-disc list-inside text-sm opacity-90">
+                                <li>Q, K, V Projections (3 × ${architectureData.hidden_size})</li>
+                                <li>Multi-Head Attention (${architectureData.num_attention_heads} heads)</li>
+                                <li>Output Projection</li>
+                                <li>Feed-Forward Network (${architectureData.intermediate_size} dim)</li>
+                                <li>Layer Normalization</li>
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function createAttentionPattern() {
+            const pattern = document.getElementById('attention-pattern');
+            const total = architectureData.num_hidden_layers;
+            const local = architectureData.attention_info.local_layers.length;
+            const global = architectureData.attention_info.global_layers.length;
+            
+            pattern.innerHTML = `
+                <div class="flex justify-between mb-4">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-purple-400">${local}</p>
+                        <p class="text-sm opacity-70">Local Layers</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-pink-400">${global}</p>
+                        <p class="text-sm opacity-70">Global Layers</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-blue-400">5:1</p>
+                        <p class="text-sm opacity-70">Ratio</p>
+                    </div>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-4">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-4 rounded-full" 
+                         style="width: ${(local/total)*100}%"></div>
+                </div>
+            `;
+        }
+
+        function createMemoryCharts() {
+            // Model size comparison
+            const sizeData = {
+                x: ['FP32', 'BF16', 'INT8', 'INT4'],
+                y: [
+                    architectureData.memory_info.fp32_size_gb,
+                    architectureData.memory_info.model_size_gb,
+                    architectureData.memory_info.int8_size_gb,
+                    architectureData.memory_info.int4_size_gb
+                ],
+                type: 'bar',
+                marker: {
+                    color: ['#4facfe', '#667eea', '#764ba2', '#f093fb']
+                }
+            };
+
+            const sizeLayout = {
+                title: 'Model Size by Precision',
+                yaxis: { title: 'Size (GB)' },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: 'white' }
+            };
+
+            Plotly.newPlot('model-size-chart', [sizeData], sizeLayout, {responsive: true});
+
+            // Context memory comparison
+            const contextData = {
+                x: ['1K', '4K', '16K', '128K', '128K Opt'],
+                y: [
+                    architectureData.memory_info.kv_cache_1024_gb,
+                    architectureData.memory_info.kv_cache_4096_gb,
+                    architectureData.memory_info.kv_cache_16384_gb,
+                    architectureData.memory_info.kv_cache_131072_gb,
+                    architectureData.memory_info.kv_cache_131072_optimized_gb
+                ],
+                type: 'bar',
+                marker: {
+                    color: ['#43e97b', '#38f9d7', '#00f2fe', '#f5576c', '#667eea']
+                }
+            };
+
+            const contextLayout = {
+                title: 'KV-Cache Memory by Context Length',
+                yaxis: { title: 'Memory (GB)' },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: 'white' }
+            };
+
+            Plotly.newPlot('context-memory-chart', [contextData], contextLayout, {responsive: true});
+        }
+
+        function setupTabs() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabName = btn.dataset.tab;
+                    
+                    // Update button styles
+                    tabBtns.forEach(b => {
+                        b.classList.remove('border-b-2', 'border-purple-500');
+                        b.classList.add('opacity-70');
+                    });
+                    btn.classList.add('border-b-2', 'border-purple-500');
+                    btn.classList.remove('opacity-70');
+                    
+                    // Show correct tab content
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+                });
+            });
+        }
+
+        // Load actual data if available
+        fetch('architecture_data.json')
+            .then(response => response.json())
+            .then(data => {
+                Object.assign(architectureData, data);
+                initVisualization();
+            })
+            .catch(() => {
+                // Use default data if file not found
+                initVisualization();
+            });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initVisualization);
+    </script>
+</body>
+</html>
