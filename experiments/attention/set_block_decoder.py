@@ -7,7 +7,7 @@ Accelerates generation by sampling multiple future tokens in parallel
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Dict, List, Tuple, Optional, Set, Any
+from typing import Dict, Tuple, Optional, Any
 from dataclasses import dataclass
 import numpy as np
 import time
@@ -441,11 +441,7 @@ class SetBlockDecoder:
     def visualize_generation_pattern(self, text: str, save_path: Optional[str] = None):
         """Visualize the block generation pattern"""
         
-        # Generate with tracking
-        inputs = self.tokenizer(text, return_tensors="pt").to(self.device)
-        
-        # Track which tokens were generated in parallel
-        generation_pattern = []
+        # Generate with tracking (placeholder visualization without using internals)
         
         # This would need more detailed tracking in actual generation
         # For now, create a sample pattern

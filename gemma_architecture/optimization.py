@@ -6,13 +6,12 @@ Metal/MPS optimization, quantization, and performance analysis
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Dict, List, Tuple, Optional, Any, Callable
+from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 from dataclasses import dataclass
 import time
 import psutil
 import os
-from pathlib import Path
 
 
 @dataclass 
@@ -140,7 +139,7 @@ class MetalOptimizer:
         
         for _ in range(num_iterations):
             with torch.no_grad():
-                output = self.model(dummy_input)
+                _ = self.model(dummy_input)
                 
         torch.mps.synchronize() if self.mps_available else None
         end_time = time.time()

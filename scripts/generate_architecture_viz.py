@@ -5,14 +5,11 @@ Creates both data export and launches web server
 """
 
 import argparse
-import json
 import webbrowser
 import http.server
 import socketserver
-import threading
 from pathlib import Path
 import sys
-import os
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -156,7 +153,7 @@ def main():
         return
     
     # Generate visualization
-    architecture_data = generate_visualization(args.model_path, args.output_dir)
+    _ = generate_visualization(args.model_path, args.output_dir)
     
     # Serve if requested
     if args.serve:

@@ -16,9 +16,9 @@ from rich.prompt import Prompt, Confirm
 sys.path.append(str(Path(__file__).parent))
 
 from experiments.lora.rank1_dynamic_merger import Rank1MergeConfig
-from training.relora import ReLoRAConfig, create_relora_trainer
-from analyze.capacity_meter import CapacityAnalyzer, run_capacity_experiment
-from analyze.attention_visualizer import GemmaAttentionAnalyzer, run_attention_analysis
+from training.relora import create_relora_trainer
+from analyze.capacity_meter import run_capacity_experiment
+from analyze.attention_visualizer import run_attention_analysis
 from experiments.attention.set_block_decoder import SBDConfig, create_sbd_accelerator
 
 console = Console()
@@ -71,7 +71,7 @@ def run_rank1_experiment(model_path: str):
     """Run dynamic rank-1 merging experiment"""
     console.print("\n[bold cyan]Dynamic Rank-1 LoRA Merging Experiment[/bold cyan]")
     
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from transformers import AutoModelForCausalLM
     from torch.utils.data import DataLoader
     
     # Load model

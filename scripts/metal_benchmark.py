@@ -12,7 +12,7 @@ from pathlib import Path
 import json
 import psutil
 import matplotlib.pyplot as plt
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 from rich.console import Console
 from rich.table import Table
@@ -21,8 +21,6 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 # MLX imports (optional)
 try:
     import mlx
-    import mlx.core as mx
-    import mlx.nn as mnn
     from mlx_lm import load, generate
     MLX_AVAILABLE = True
 except ImportError:
@@ -130,13 +128,12 @@ class MetalBenchmark:
                     
                     # Benchmark
                     for run in range(self.config.num_runs):
-                        mem_before = self.get_memory_usage()
                         
                         torch.mps.synchronize()
                         start_time = time.perf_counter()
                         
                         with torch.no_grad():
-                            outputs = model(input_ids)
+                            _ = model(input_ids)
                             
                         torch.mps.synchronize()
                         end_time = time.perf_counter()
@@ -230,7 +227,7 @@ class MetalBenchmark:
                         start_time = time.perf_counter()
                         
                         with torch.no_grad():
-                            outputs = model(input_ids)
+                            _ = model(input_ids)
                             
                         end_time = time.perf_counter()
                         

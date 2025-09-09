@@ -6,7 +6,7 @@ High-Rank Training Through Low-Rank Updates (arxiv:2307.05695)
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from typing import Dict, List, Optional
+from typing import Dict, List
 from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt

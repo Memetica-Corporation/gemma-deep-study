@@ -6,15 +6,12 @@ Advanced capacity measurement and memorization analysis for Gemma-3
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Optional, Any
 import numpy as np
 from dataclasses import dataclass
-import hashlib
 from tqdm.auto import tqdm
 import matplotlib.pyplot as plt
-from scipy import stats
 import random
-import string
 
 
 @dataclass

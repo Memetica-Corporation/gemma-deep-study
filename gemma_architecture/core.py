@@ -5,7 +5,7 @@ Deep introspection tools for Gemma-3 transformer architecture
 
 import torch
 import torch.nn as nn
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, Tuple, Optional, Any
 import numpy as np
 from dataclasses import dataclass
 from collections import defaultdict

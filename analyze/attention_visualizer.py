@@ -4,14 +4,12 @@ Focuses on understanding the 5:1 local/global attention pattern
 """
 
 import torch
-import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from pathlib import Path
 import json

@@ -7,9 +7,8 @@ Measures ~3.6 bits per parameter capacity and tracks memorization vs generalizat
 import torch
 import torch.nn as nn
 import numpy as np
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, Tuple, Optional
 import matplotlib.pyplot as plt
-from scipy.stats import entropy
 from dataclasses import dataclass
 import json
 

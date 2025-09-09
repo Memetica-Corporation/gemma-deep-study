@@ -6,14 +6,12 @@ Implements state-of-the-art mechanistic interpretability techniques
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Dict, List, Tuple, Optional, Callable, Any
+from typing import Dict, List, Optional, Any
 import numpy as np
 from dataclasses import dataclass
 from collections import defaultdict
-import einops
 from scipy import stats
 from sklearn.decomposition import PCA, FastICA
-from sklearn.manifold import TSNE
 import warnings
 warnings.filterwarnings('ignore')
 

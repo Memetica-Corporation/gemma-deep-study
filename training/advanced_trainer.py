@@ -5,19 +5,15 @@ Implements cutting-edge optimization and training techniques
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
-from typing import Dict, List, Tuple, Optional, Callable, Any
-import numpy as np
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from collections import defaultdict
 import math
 import wandb
 from pathlib import Path
-import json
 from tqdm.auto import tqdm
-import time
 
 
 @dataclass

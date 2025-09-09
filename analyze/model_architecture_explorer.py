@@ -8,7 +8,6 @@ import torch
 import torch.nn as nn
 from transformers import AutoModelForCausalLM, AutoConfig
 import json
-from pathlib import Path
 from typing import Dict, List, Any, Optional
 import numpy as np
 from dataclasses import dataclass, asdict
@@ -281,7 +280,6 @@ class GemmaArchitectureAnalyzer:
         # Create simplified nodes
         for idx, layers in sorted(layer_groups.items()):
             # Group layers by type
-            has_attention = any(l.is_attention for l in layers)
             is_local = any(l.is_local for l in layers)
             is_global = any(l.is_global for l in layers)
             

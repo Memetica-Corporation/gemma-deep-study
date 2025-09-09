@@ -12,7 +12,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import numpy as np
 from rich.console import Console
 from rich.table import Table
-from typing import Dict, List
+from typing import Dict
 
 
 console = Console()

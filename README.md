@@ -8,7 +8,7 @@
 
 ## 🎯 Overview
 
-This repository contains state-of-the-art research implementations for deep analysis of Google's Gemma-3 architecture. Our work demonstrates frontier-level understanding of transformer models through:
+This repository contains state-of-the-art research implementations for deep analysis of Google's Gemma-3 architecture. Our work seeks frontier-level understanding of transformer models through:
 
 - **🔬 Advanced Architecture Analysis**: Deep introspection tools for understanding model internals
 - **📊 Capacity Measurement**: Implementation of "How much do language models memorize?" (arxiv:2505.24832)
@@ -225,9 +225,9 @@ If you use this code in your research, please cite:
 ```bibtex
 @software{gemma_deep_study,
   title = {Gemma-3 Deep Architecture Study},
-  author = {Fidelic AI Research},
+  author = {Memetica Corporation},
   year = {2025},
-  url = {https://github.com/fidelic/gemma-deep-study}
+  url = {https://github.com/memetica-corp/gemma-deep-study}
 }
 ```
 

@@ -86,7 +86,7 @@ def download_gemma_pytorch(model_name: str, output_dir: str, quantize: str = Non
         
         return True
         
-    except Exception as e:
+    except Exception:
         print(f"❌ Error downloading model: {e}")
         return False
 
@@ -150,7 +150,7 @@ def verify_installation(model_dir: str):
             return False
             
         # Try loading tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(model_dir)
+        _ = AutoTokenizer.from_pretrained(model_dir)
         print("✅ Tokenizer loaded successfully")
         
         # Check config
