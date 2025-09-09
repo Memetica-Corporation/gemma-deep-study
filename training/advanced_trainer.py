@@ -175,7 +175,11 @@ class AdvancedLoRAModule(nn.Module):
     def get_effective_rank(self) -> int:
         """Compute effective rank using SVD"""
         weight_delta = self.lora_B @ self.lora_A
-        _, s, _ = torch.svd(weight_delta)
+        # Prefer torch.linalg.svdvals; fall back to torch.svd for older versions
+        try:
+            s = torch.linalg.svdvals(weight_delta)
+        except Exception:
+            _, s, _ = torch.svd(weight_delta)
         
         # Compute effective rank (99% energy)
         cumsum = torch.cumsum(s**2, dim=0)
@@ -210,7 +214,9 @@ class ReLoRATrainer:
         self.scheduler = self._create_scheduler()
         
         # Mixed precision
-        self.scaler = torch.cuda.amp.GradScaler() if config.mixed_precision else None
+        # Enable CUDA GradScaler only when on CUDA; use torch.autocast for MPS/CUDA
+        use_cuda_amp = config.mixed_precision and torch.device(config.device).type == "cuda"
+        self.scaler = torch.cuda.amp.GradScaler(enabled=use_cuda_amp)
         
         # Statistics
         self.training_stats = defaultdict(list)
@@ -306,8 +312,10 @@ class ReLoRATrainer:
         # Move batch to device
         batch = {k: v.to(self.device) for k, v in batch.items()}
         
-        # Mixed precision context
-        with torch.cuda.amp.autocast() if self.config.mixed_precision else torch.no_grad():
+        # Mixed precision context (device-aware)
+        autocast_dtype = torch.bfloat16 if self.device.type in ("cuda", "mps") else torch.float32
+        use_autocast = self.config.mixed_precision and self.device.type in ("cuda", "mps")
+        with torch.autocast(device_type=self.device.type, dtype=autocast_dtype, enabled=use_autocast):
             # Forward pass
             outputs = self.model(**batch)
             loss = outputs.loss if hasattr(outputs, 'loss') else outputs['loss']
@@ -316,7 +324,7 @@ class ReLoRATrainer:
             loss = loss / self.config.gradient_accumulation_steps
             
         # Backward pass
-        if self.scaler:
+        if self.scaler and self.scaler.is_enabled():
             self.scaler.scale(loss).backward()
         else:
             loss.backward()
@@ -325,7 +333,7 @@ class ReLoRATrainer:
         if (self.step + 1) % self.config.gradient_accumulation_steps == 0:
             # Gradient clipping
             if self.config.gradient_clip > 0:
-                if self.scaler:
+                if self.scaler and self.scaler.is_enabled():
                     self.scaler.unscale_(self.optimizer)
                 torch.nn.utils.clip_grad_norm_(
                     self.model.parameters(), 
@@ -333,7 +341,7 @@ class ReLoRATrainer:
                 )
                 
             # Optimizer step
-            if self.scaler:
+            if self.scaler and self.scaler.is_enabled():
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
             else:

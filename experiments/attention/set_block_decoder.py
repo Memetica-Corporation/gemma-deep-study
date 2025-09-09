@@ -7,11 +7,10 @@ Accelerates generation by sampling multiple future tokens in parallel
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Dict, List, Tuple, Optional, Set
+from typing import Dict, List, Tuple, Optional, Set, Any
 from dataclasses import dataclass
 import numpy as np
 import time
-from transformers import AutoModelForCausalLM, AutoTokenizer
 import matplotlib.pyplot as plt
 
 
@@ -60,8 +59,8 @@ class SetBlockDecoder:
     
     def __init__(
         self,
-        model: AutoModelForCausalLM,
-        tokenizer: AutoTokenizer,
+        model: Any,
+        tokenizer: Any,
         config: SBDConfig
     ):
         self.model = model
@@ -121,8 +120,10 @@ class SetBlockDecoder:
         self,
         input_ids: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Predict multiple tokens in parallel using MATP"""
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Predict multiple tokens in parallel using MATP.
+        Returns (predictions, confidences, mask) where mask is a 1D bool tensor of length block_size.
+        """
         
         batch_size = input_ids.shape[0]
         seq_len = input_ids.shape[1]
@@ -135,8 +136,12 @@ class SetBlockDecoder:
             device=self.device
         )
         
-        # Initialize with mask tokens
-        mask_token_id = self.tokenizer.mask_token_id or self.tokenizer.unk_token_id
+        # Initialize with mask tokens (robust fallback for causal LMs)
+        mask_token_id = (
+            self.tokenizer.mask_token_id
+            or getattr(self.tokenizer, 'unk_token_id', None)
+            or self.tokenizer.eos_token_id
+        )
         block_ids.fill_(mask_token_id)
         
         # Concatenate with input
@@ -165,7 +170,7 @@ class SetBlockDecoder:
         
         # Predict tokens for masked positions
         mask = self.create_block_mask(self.config.block_size, self.config.masking_strategy)
-        masked_positions = mask.nonzero().squeeze()
+        masked_positions = mask.nonzero(as_tuple=False).view(-1)
         
         predictions = []
         confidences = []
@@ -185,10 +190,10 @@ class SetBlockDecoder:
             predictions.append(predicted_token)
             confidences.append(confidence)
             
-        predictions = torch.stack(predictions) if predictions else torch.tensor([])
+        predictions = torch.stack(predictions) if predictions else torch.tensor([], device=self.device)
         confidences = torch.tensor(confidences)
         
-        return predictions, confidences
+        return predictions, confidences, mask
         
     def refine_block_predictions(
         self,
@@ -248,7 +253,12 @@ class SetBlockDecoder:
         """Generate text using Set Block Decoding"""
         
         # Tokenize prompt
-        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+        inputs = self.tokenizer(prompt, return_tensors="pt")
+        # Move inputs to device whether it's a BatchEncoding or a plain dict
+        if hasattr(inputs, 'to'):
+            inputs = inputs.to(self.device)
+        else:
+            inputs = {k: (v.to(self.device) if hasattr(v, 'to') else v) for k, v in inputs.items()}
         input_ids = inputs['input_ids']
         attention_mask = inputs.get('attention_mask')
         
@@ -259,7 +269,7 @@ class SetBlockDecoder:
         
         while tokens_generated < max_new_tokens:
             # Predict block of tokens
-            predictions, confidences = self.parallel_token_prediction(
+            predictions, confidences, mask = self.parallel_token_prediction(
                 generated_ids, attention_mask
             )
             
@@ -268,14 +278,11 @@ class SetBlockDecoder:
                 
             # Create full block
             block = torch.zeros(self.config.block_size, dtype=torch.long, device=self.device)
-            mask = self.create_block_mask(self.config.block_size, self.config.masking_strategy)
             
             # Fill in predictions
-            masked_positions = mask.nonzero().squeeze()
+            masked_positions = mask.nonzero(as_tuple=False).view(-1).to(block.device)
             if masked_positions.numel() > 0:
-                if masked_positions.dim() == 0:
-                    masked_positions = masked_positions.unsqueeze(0)
-                block[masked_positions] = predictions
+                block[masked_positions] = predictions[: masked_positions.numel()]
                 
             # Fill non-masked positions with standard decoding
             non_masked = ~mask
@@ -464,6 +471,9 @@ def create_sbd_accelerator(model_path: str, config: Optional[SBDConfig] = None):
     if config is None:
         config = SBDConfig()
         
+    # Import transformers lazily to avoid heavy optional deps during import
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    
     model = AutoModelForCausalLM.from_pretrained(
         model_path,
         torch_dtype=torch.bfloat16,

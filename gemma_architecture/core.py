@@ -245,7 +245,7 @@ class GemmaArchitecture:
                 fwd_hook = module.register_forward_hook(
                     partial(forward_hook, layer_idx=idx)
                 )
-                bwd_hook = module.register_backward_hook(
+                bwd_hook = module.register_full_backward_hook(
                     partial(backward_hook, layer_idx=idx)
                 )
                 self.hooks.extend([fwd_hook, bwd_hook])
