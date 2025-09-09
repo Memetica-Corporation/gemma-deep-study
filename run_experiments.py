@@ -15,8 +15,8 @@ from rich.prompt import Prompt, Confirm
 # Import experiment modules
 sys.path.append(str(Path(__file__).parent))
 
-from experiments.lora.rank1_dynamic_merger import Rank1MergeConfig, create_rank1_trainer
-from experiments.lora.relora_trainer import ReLoRAConfig, create_relora_trainer
+from experiments.lora.rank1_dynamic_merger import Rank1MergeConfig
+from training.relora import ReLoRAConfig, create_relora_trainer
 from analyze.capacity_meter import CapacityAnalyzer, run_capacity_experiment
 from analyze.attention_visualizer import GemmaAttentionAnalyzer, run_attention_analysis
 from experiments.attention.set_block_decoder import SBDConfig, create_sbd_accelerator

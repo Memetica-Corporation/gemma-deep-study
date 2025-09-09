@@ -69,14 +69,9 @@ results = analyzer.measure_bitstring_memorization(
 State-of-the-art parameter-efficient training with periodic rank resets:
 
 ```python
-from training.advanced_trainer import ReLoRATrainer, TrainingConfig
+from training.relora import ReLoRATrainer, ReLoRAConfig, create_relora_trainer
 
-config = TrainingConfig(
-    relora_enabled=True,
-    relora_reset_interval=1000,
-    rank1_merge_enabled=True  # Dynamic rank-1 merging
-)
-trainer = ReLoRATrainer(model, config)
+trainer = create_relora_trainer(model)
 ```
 
 ### 3. Advanced Architecture Analysis
@@ -187,7 +182,7 @@ pip install -r requirements.txt
 python scripts/download_model.py --model google/gemma-3-4b
 ```
 
-## 🧪 Testing
+## 🧪 Testing & CLI
 
 Run the unit tests:
 
@@ -196,6 +191,16 @@ pytest -q
 ```
 
 Includes tests for training autocast/scaler behavior, backward hook gradients, and SBD utilities.
+
+Use the unified CLI:
+
+```bash
+python cli.py relora --model-path models/gemma-3-4b
+python cli.py rank1 --model-path models/gemma-3-4b
+python cli.py capacity --model-path models/gemma-3-4b
+python cli.py attention --model-path models/gemma-3-4b
+python cli.py sbd --model-path models/gemma-3-4b
+```
 
 ## 📚 Documentation
 

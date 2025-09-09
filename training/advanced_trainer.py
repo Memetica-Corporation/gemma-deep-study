@@ -488,102 +488,10 @@ class ReLoRATrainer:
         print(f"Loaded checkpoint from {path} (step {self.step})")
 
 
-class SetBlockDecoder:
-    """
-    Implements Set Block Decoding for accelerated inference
-    Based on arxiv:2509.04185
-    """
-    
-    def __init__(self, model: nn.Module, block_size: int = 4):
-        self.model = model
-        self.block_size = block_size
-        self.device = next(model.parameters()).device
-        
-    @torch.no_grad()
-    def generate(self, 
-                input_ids: torch.Tensor,
-                max_length: int,
-                temperature: float = 1.0,
-                top_k: Optional[int] = 50) -> torch.Tensor:
-        """
-        Generate text using Set Block Decoding
-        """
-        
-        self.model.eval()
-        
-        batch_size = input_ids.shape[0]
-        current_length = input_ids.shape[1]
-        
-        # Initialize output
-        output = input_ids.clone()
-        
-        while current_length < max_length:
-            # Predict next block of tokens
-            block_predictions = []
-            
-            for _ in range(self.block_size):
-                # Get model predictions
-                outputs = self.model(output)
-                logits = outputs.logits if hasattr(outputs, 'logits') else outputs['logits']
-                
-                # Apply temperature
-                logits = logits[:, -1, :] / temperature
-                
-                # Apply top-k filtering
-                if top_k is not None:
-                    indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
-                    logits[indices_to_remove] = -float('inf')
-                    
-                # Sample
-                probs = F.softmax(logits, dim=-1)
-                next_token = torch.multinomial(probs, num_samples=1)
-                
-                block_predictions.append(next_token)
-                
-                # Append to output
-                output = torch.cat([output, next_token], dim=1)
-                current_length += 1
-                
-                if current_length >= max_length:
-                    break
-                    
-            # Refine block predictions using masked prediction
-            if len(block_predictions) > 1:
-                block_tensor = torch.cat(block_predictions, dim=1)
-                refined_block = self._refine_block(output, block_tensor)
-                
-                # Replace last tokens with refined predictions
-                output[:, -len(block_predictions):] = refined_block
-                
-        return output
-    
-    def _refine_block(self, context: torch.Tensor, block: torch.Tensor) -> torch.Tensor:
-        """
-        Refine block predictions using masked language modeling
-        """
-        
-        # Create masked input
-        masked_input = torch.cat([context[:, :-block.shape[1]], block], dim=1)
-        
-        # Randomly mask some positions in the block
-        mask_prob = 0.3
-        mask = torch.rand(block.shape) < mask_prob
-        masked_input[:, -block.shape[1]:][mask] = self.model.config.mask_token_id
-        
-        # Get predictions for masked positions
-        outputs = self.model(masked_input)
-        logits = outputs.logits if hasattr(outputs, 'logits') else outputs['logits']
-        
-        # Extract predictions for block positions
-        block_logits = logits[:, -block.shape[1]:, :]
-        
-        # Sample refined tokens
-        refined_block = torch.argmax(block_logits, dim=-1)
-        
-        # Keep original predictions for unmasked positions
-        refined_block[~mask] = block[~mask]
-        
-        return refined_block
+"""
+Note: SetBlockDecoder is provided in experiments/attention/set_block_decoder.py.
+This duplicate implementation has been removed to avoid divergence.
+"""
 
 
 class MemoryEfficientTrainer:
