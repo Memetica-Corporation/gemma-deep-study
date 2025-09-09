@@ -26,10 +26,12 @@ gemma/
 │   ├── visualization.py     # Interactive visualizations
 │   └── optimization.py      # Metal/quantization optimization
 ├── training/                # Advanced training implementations
-│   └── advanced_trainer.py  # ReLoRA, SBD, memory-efficient training
+│   ├── advanced_trainer.py  # ReLoRA (legacy), memory-efficient training
+│   └── relora.py            # Unified ReLoRA trainer
 ├── research/                # Frontier research implementations
 │   └── capacity_measurement.py  # Model capacity analysis
-└── main.py                  # Main research lab interface
+├── run_experiments.py       # Interactive experiment runner
+└── cli.py                   # Unified CLI entrypoint
 ```
 
 ## 🚀 Quick Start
