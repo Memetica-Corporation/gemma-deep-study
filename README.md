@@ -40,11 +40,13 @@ git clone https://github.com/fidelic/gemma-deep-study
 cd gemma
 make setup
 
-# Run comprehensive analysis
-python main.py --model gemma-3-4b --experiments all
+# Run experiments interactively
+python run_experiments.py --model-path models/gemma-3-4b --experiment interactive
 
 # Or run specific experiments
-python main.py --experiments architecture capacity
+python run_experiments.py --model-path models/gemma-3-4b --experiment capacity
+python run_experiments.py --model-path models/gemma-3-4b --experiment attention
+python run_experiments.py --model-path models/gemma-3-4b --experiment sbd
 ```
 
 ## 📊 Key Research Implementations
@@ -162,7 +164,7 @@ Our framework generates interactive visualizations for:
 ### Requirements
 - Python 3.9+
 - PyTorch 2.0+
-- Mac with Apple Silicon (for Metal optimization)
+- Mac with Apple Silicon (for Metal optimization) or CUDA-capable GPU
 - 32GB+ RAM for 4B model, 64GB+ for 12B
 
 ### Setup
@@ -175,19 +177,31 @@ cd gemma
 python -m venv venv
 source venv/bin/activate
 
-# Install dependencies
+# Install dependencies (core)
 pip install -r requirements.txt
+
+# Optional: CUDA extras (Linux/CUDA)
+# pip install flash-attn bitsandbytes
 
 # Download model (requires HuggingFace account)
 python scripts/download_model.py --model google/gemma-3-4b
 ```
 
+## 🧪 Testing
+
+Run the unit tests:
+
+```bash
+pytest -q
+```
+
+Includes tests for training autocast/scaler behavior, backward hook gradients, and SBD utilities.
+
 ## 📚 Documentation
 
-Comprehensive documentation available in:
-- [CLAUDE.md](CLAUDE.md) - Detailed research notes and implementation details
-- [API Documentation](docs/api.md) - Complete API reference
-- [Experiments Guide](docs/experiments.md) - How to run and extend experiments
+See:
+- [CLAUDE.md](CLAUDE.md) for detailed research notes
+- `run_experiments.py` for experiment entrypoints
 
 ## 🤝 Contributing
 

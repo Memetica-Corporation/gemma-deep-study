@@ -74,8 +74,13 @@ def generate_visualization(model_path: str, output_dir: str = "visualizations"):
     console.print(f"  BF16: {mem_info['model_size_gb']:.2f} GB")
     console.print(f"  INT8: {mem_info['int8_size_gb']:.2f} GB")
     console.print(f"  INT4: {mem_info['int4_size_gb']:.2f} GB")
-    console.print(f"  KV-Cache (128K): {mem_info.get('kv_cache_131072_gb', 'N/A'):.2f} GB")
-    console.print(f"  KV-Cache (128K, optimized): {mem_info.get('kv_cache_131072_optimized_gb', 'N/A'):.2f} GB")
+    def _fmt_gb(val):
+        try:
+            return f"{float(val):.2f} GB"
+        except Exception:
+            return "N/A"
+    console.print(f"  KV-Cache (128K): {_fmt_gb(mem_info.get('kv_cache_131072_gb'))}")
+    console.print(f"  KV-Cache (128K, optimized): {_fmt_gb(mem_info.get('kv_cache_131072_optimized_gb'))}")
     
     return architecture_data
 
@@ -93,11 +98,11 @@ def serve_visualization(port: int = 8080):
     
     with socketserver.TCPServer(("", port), Handler) as httpd:
         console.print(f"\n[bold cyan]🌐 Web server started![/bold cyan]")
-        console.print(f"View visualization at: [link]http://localhost:{port}/gemma_architecture.html[/link]")
+        console.print(f"View visualization at: [link]http://localhost:{port}/architecture_plot.html[/link]")
         console.print("[dim]Press Ctrl+C to stop the server[/dim]\n")
         
         # Open browser
-        webbrowser.open(f"http://localhost:{port}/gemma_architecture.html")
+        webbrowser.open(f"http://localhost:{port}/architecture_plot.html")
         
         try:
             httpd.serve_forever()

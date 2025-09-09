@@ -10,7 +10,10 @@ import numpy as np
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
-from scipy.linalg import svd
+try:
+    from scipy.linalg import svd
+except Exception:
+    svd = None
 
 
 @dataclass
@@ -105,8 +108,12 @@ class DynamicRank1Merger:
     def compute_effective_rank(self, layer_name: str) -> Tuple[int, np.ndarray]:
         """Compute effective rank of weight matrix via SVD"""
         with torch.no_grad():
-            weight = self.base_layers[layer_name].weight.cpu().numpy()
-            _, s, _ = svd(weight, full_matrices=False)
+            weight = self.base_layers[layer_name].weight
+            if svd is not None:
+                s = torch.tensor(svd(weight.cpu().numpy(), full_matrices=False)[1])
+            else:
+                # Fallback to torch.linalg.svdvals
+                s = torch.linalg.svdvals(weight)
             
             # Compute effective rank (number of singular values > threshold)
             threshold = s[0] * 1e-3 if s[0] > 0 else 1e-10
