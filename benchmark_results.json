@@ -1,0 +1,22 @@
+{
+  "pytorch_mps": {
+    "backend": "PyTorch MPS",
+    "device": "mps",
+    "load_time": 6.785760879516602,
+    "inference_times": [],
+    "tokens_per_second": [],
+    "memory_usage": 0.4405059814453125,
+    "error": "probability tensor contains either `inf`, `nan` or element < 0"
+  },
+  "mlx": {
+    "backend": "MLX",
+    "device": "mlx",
+    "load_time": 1.8481419086456299,
+    "inference_times": [],
+    "tokens_per_second": [],
+    "memory_usage": 22.217330932617188,
+    "error": "generate_step() got an unexpected keyword argument 'temp'"
+  },
+  "hardware": "M3 Ultra 256GB",
+  "model": "gemma-3-12b-it"
+}

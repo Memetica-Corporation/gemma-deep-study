@@ -20,15 +20,19 @@ pyvenv.cfg
 *.ipynb_checkpoints
 
 # Models & Data
-models/*.bin
-models/*.safetensors
-models/*.pt
-models/*.pth
+models/
+models_mlx/
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.npz
+*.msgpack
+*.h5
+*.ckpt
 data/*.csv
 data/*.json
 data/*.txt
-*.h5
-*.ckpt
 
 # Logs & Outputs
 logs/

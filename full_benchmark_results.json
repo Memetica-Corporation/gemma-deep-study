@@ -1,0 +1,59 @@
+[
+  {
+    "name": "PyTorch MPS FP16",
+    "backend": "pytorch",
+    "precision": "fp16",
+    "metrics": [
+      {
+        "prompt": "Explain quantum computing in simple terms:",
+        "input_tokens": 8,
+        "output_tokens": 100,
+        "generation_time": 9.49410080909729,
+        "tokens_per_sec": 10.532856350564506,
+        "generated_text": ""
+      },
+      {
+        "prompt": "Write a Python function to calculate fibonacci numbers:",
+        "input_tokens": 11,
+        "output_tokens": 100,
+        "generation_time": 5.89616322517395,
+        "tokens_per_sec": 16.960181762446,
+        "generated_text": ""
+      },
+      {
+        "prompt": "What are the key differences between supervised and unsupervised learning?",
+        "input_tokens": 12,
+        "output_tokens": 100,
+        "generation_time": 5.811882019042969,
+        "tokens_per_sec": 17.206130419087,
+        "generated_text": ""
+      }
+    ],
+    "load_time": 6.78986120223999,
+    "memory_gb": 0.5791168212890625
+  },
+  {
+    "name": "PyTorch MPS 8-bit",
+    "backend": "pytorch",
+    "precision": "int8",
+    "metrics": [],
+    "error": "Using `bitsandbytes` 8-bit quantization requires the latest version of bitsandbytes: `pip install -U bitsandbytes`"
+  },
+  {
+    "name": "MLX FP16",
+    "backend": "mlx",
+    "precision": "fp16",
+    "metrics": [],
+    "load_time": 0.0,
+    "memory_gb": 23.7,
+    "error": "invalid literal for int() with base 10: 'Generation:'"
+  },
+  {
+    "name": "MLX 4-bit",
+    "backend": "mlx",
+    "precision": "int4",
+    "metrics": [],
+    "memory_gb": 6.2,
+    "error": "invalid literal for int() with base 10: 'Generation:'"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "pytorch_mps": [],
+  "mlx": [
+    {
+      "prompt": "Write a haiku about artificial intelligence:",
+      "output_tokens": 18,
+      "generation_time": 6.667119026184082,
+      "tokens_per_sec": 29.001,
+      "generated_text": "Code comes alive,\nNeural nets, a thinking spark,\nFuture taking shape.",
+      "text_length": 69,
+      "peak_memory_gb": 23.648
+    },
+    {
+      "prompt": "Explain the water cycle:",
+      "output_tokens": 500,
+      "generation_time": 23.775246143341064,
+      "tokens_per_sec": 27.618,
+      "generated_text": "Okay, let's break down the water cycle! It'. It's a continuous cycle of water moving around the Earth, changing states (solid, liquid, gas) along the way. Here's a comprehensive explanation, broken down into sections for clarity:\n\n**1. The Big Picture: A Continuous Loop**\n\n*   **Water is Key:** The water cycle describes how *all* of Earth's water (oceans, rivers, ice caps, glaciers, water vapor in the atmosphere, groundwater \u2013 everything!) is in constant,ochemicals.\n*   **Continuous Loop:**  It's not a linear process; it's a cycle!  Water molecules are constantly moving around the Earth, changing states as they move.  There's no real \"start\" or \"end\" to the cycle \u2013 it's a continuous cycle-of-water-and-chemicals.\n\n**2. The Key Processes: How Water Moves & Changes**\n\nLet's look at the main things that happen in the water cycle:\n\n*   **Evaporation:**  This is the most well-bodies-of-water-and-chemicals.  Heat from the suns the water, turning it into water vapor (gas).  This happens all over the Earth'. Bodies-of-water-and-chemicals.- Bodies-of-water-and-chemicals.- Bodies-of-water-- Bodies-of-water- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies- Bodies-",
+      "text_length": 1905,
+      "peak_memory_gb": 23.767
+    },
+    {
+      "prompt": "Write a detailed step-by-step recipe for chocolate chip cookies:",
+      "output_tokens": 500,
+      "generation_time": 23.869969129562378,
+      "tokens_per_sec": 27.665,
+      "generated_text": "## The Ultimate Guide to Classic Chocolate Chip Cookies: A Step-Chocolatey Dream\n\nThis recipe will guide you through creating classic, chewy, and utterly irresistible chocolate chip cookies. I'll include details on each step, including \"why\" things are done a certain way, so you can become a confident cookie baker!\n\n**Yields:** Approximately 24-36 cookies (depending on size)\n**Prep Time:** 20-30 minutes (includes cookie dough chilling time - HIGHLY recommended!)\n**Bake Time:** 20-15 minutes\n\n**Ingredients - The Stars of the Show:**\n\n* **Dry Ingredients:**\n* 2 1/4 cups all-Why? For best results, use a *level* measurement.\n* 1/4 cup packed brown sugar (light or dark - see note at end)\n* 1/4 cup granulated sugar (granulated sugar helps with crispness)\n-1 tsp baking soda (leavening agent - reacts with wet ingredients)\n-1 tsp baking soda (leasons saltiness reaction )\n-1 tsp baking soda (leavening agent - reacts with wet ingredients)\n-1/4 tsp baking soda (leavening agent - reacts with wet ingredients)\n-1/4 tsp baking soda (leasons saltiness reaction )\n-1/4 tsp baking soda (leasons saltiness reaction )\n-1/4 tsp baking soda (leasons salt-1/8 tsp salt (enhances flavors & balances sweetness - *less is often better!)\n* **Wet Ingredients:**\n* 1/4 cup (1/4 cup) softened, unsalted butter (see \"Important Notes\" below for *ideal* consistency)\n* -1/4 cup (1/4 cup) softened, unsalted butter (see \"Important Notes\" below for *ideal* -1/4 cup (1/4 cup) softened, unsalted butter (see \"Important-1/4 cup (1/4 cup) softened, uns-1/4 cup (1/4 cup) softened, uns-1/4 cup (1/4 cup) softened, uns-1/4 cup (1/4 cup) softened, uns-1/4 cup (1/4 cup) softened, uns-1/4 cup (1/4 cup) softened, uns-1/4 cup",
+      "text_length": 1697,
+      "peak_memory_gb": 23.769
+    }
+  ]
+}
